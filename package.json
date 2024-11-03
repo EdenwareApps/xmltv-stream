@@ -72,5 +72,5 @@
     "coverage": "istanbul cover test/xmltv_test.js",
     "test": "grunt"
   },
-  "version": "0.3.0"
+  "version": "0.3.1"
 }
