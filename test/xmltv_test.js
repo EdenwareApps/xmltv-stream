@@ -3,7 +3,7 @@ var path = require('path');
 var test = require('tape');
 var moment = require('moment');
 
-var xmltv = require('../lib/xmltv.js');
+var xmltv = require('../');
 
 /**
  * Starts reading and parsing the file from the test folder. Returns the xmltv
@@ -101,7 +101,7 @@ test('XMLTV Parsing', function (t) {
     });
 
     guideParser.on('end', function () {
-        t.equal(guideProgrammes[0].length, 85 * 60, 'Parsed length - mintues');
+        t.equal(guideProgrammes[0].length, 85 * 60, 'Parsed length - minutes');
         t.equal(guideProgrammes[1].length, 35, 'Parsed length - seconds');
         t.equal(guideProgrammes[2].length, 60 * 60 * 60, 'Parsed length - hours');
         t.equal(guideProgrammes[3].length, null, 'Parsed length - bad units is null');

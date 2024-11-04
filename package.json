@@ -24,7 +24,6 @@
   "bugs": {
     "url": "https://github.com/nice-shot/node-xmltv/issues"
   },
-  "bundleDependencies": false,
   "contributors": [
     {
       "name": "Lionel Martin",
@@ -43,12 +42,15 @@
   "deprecated": false,
   "description": "An XMLTV format reader",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-jshint": "^0.11.2",
-    "grunt-tape": "0.0.2",
-    "istanbul": "^0.3.14",
-    "tape": "^4.0.0"
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "grunt": "^1.6.1",
+    "grunt-cli": "^1.5.0",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-tape": "^0.1.0",
+    "istanbul": "^0.4.5",
+    "tape": "^5.9.0"
   },
   "homepage": "https://github.com/nice-shot/node-xmltv",
   "keywords": [
@@ -62,13 +64,21 @@
       "url": "https://github.com/nice-shot/node-xmltv/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "lib/xmltv",
+  "main": "dist/xmltv.cjs",
+  "module": "lib/xmltv.js",
+  "exports": {
+    ".": {
+      "require": "dist/xmltv.cjs",
+      "import": "lib/xmltv.js"
+    }
+  },
   "name": "xmltv",
   "repository": {
     "type": "git",
     "url": "git://github.com/nice-shot/node-xmltv.git"
   },
   "scripts": {
+    "prepare": "babel lib/xmltv.js --out-file-extension .cjs --out-dir dist",
     "coverage": "istanbul cover test/xmltv_test.js",
     "test": "grunt"
   },
