@@ -133,9 +133,8 @@ If you had the Programme object from the above parsing, running `getSeason()` wi
 return: `1`.
 For more information about the xmltv_ns format check the [xmltv dtd](http://xmltv.cvs.sourceforge.net/viewvc/xmltv/xmltv/xmltv.dtd).
 
-## Missing stuff
-The following are attributes covered in the [xmltv dtd](http://xmltv.cvs.sourceforge.net/viewvc/xmltv/xmltv/xmltv.dtd)
-that the module currently doesn't parse:
+## Experimental
+The following are attributes covered in the [xmltv dtd](http://xmltv.cvs.sourceforge.net/viewvc/xmltv/xmltv/xmltv.dtd) that the module attempts to parse, but the results have not been tested. Only the other attributes are fully tested:
 * `credits` - List of crew members
 * `subtitles` - Information about the subtitle's language
 * `date` - Programme air date
