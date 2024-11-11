@@ -1,6 +1,6 @@
-# xmltv
+# XML Stream
 
-An [XMLTV](http://wiki.xmltv.org/index.php/Main_Page) format reader based on sax.
+An [XMLTV](http://wiki.xmltv.org/index.php/Main_Page) format stream reader based on sax.
 Forked from [nice-shot](https://github.com/nice-shot), which itself is a fork of the original parser by [LionelMartin](https://github.com/LionelMartin).
 
 ## Installation
