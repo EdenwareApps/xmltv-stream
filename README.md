@@ -5,7 +5,7 @@ Forked from [nice-shot](https://github.com/nice-shot), which itself is a fork of
 
 ## Installation
 
-`npm install xmltv`
+`npm install xmltv-stream`
 
 ## Getting Started
 The module exposes an XMLTV format parser class. This class is a writable stream so

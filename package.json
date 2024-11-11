@@ -51,7 +51,7 @@
       "import": "./lib/xmltv.js"
     }
   },
-  "name": "xmltv",
+  "name": "xmltv-stream",
   "repository": {
     "type": "git",
     "url": "git://github.com/EdenwareApps/xmltv-stream.git"
