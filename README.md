@@ -1,11 +1,22 @@
-# XML Stream
+# XMLTV Stream
 
-An [XMLTV](http://wiki.xmltv.org/index.php/Main_Page) format stream reader based on sax.
-Forked from [nice-shot](https://github.com/nice-shot), which itself is a fork of the original parser by [LionelMartin](https://github.com/LionelMartin).
+`XMLTV Stream` is a powerful, SAX-based XMLTV format reader for Node.js, designed for efficient and event-driven parsing of large Electronic Program Guide (EPG) data files. Forked from [nice-shot](https://github.com/nice-shot), which itself is based on the original work by [LionelMartin](https://github.com/LionelMartin), `xmltv-stream` converts XMLTV data into structured JavaScript objects with minimal memory usage.
+
+## Features
+
+- **Stream-Based Parsing**: Leverages SAX-based streaming for efficient parsing of large XMLTV files, ideal for high-volume EPG data.
+- **Optimized for XMLTV Format**: Specific mappings for XMLTV values such as title, description, categories, credits, and episode numbers.
+- **Advanced Date Handling**: Supports custom date and time formats with timezone adjustments via `intl.DateTimeFormat`.
+- **Event-Driven**: Emits events for each `channel` and `programme` information, and supports `error` and `end` events for easy integration.
+- **Lightweight and Fast**: Low memory footprint, making it suitable for large datasets and resource-constrained environments.
 
 ## Installation
 
-`npm install xmltv-stream`
+Install `xmltv-stream` using npm:
+
+```sh
+npm install xmltv-stream
+```
 
 ## Getting Started
 The module exposes an XMLTV format parser class. This class is a writable stream so
