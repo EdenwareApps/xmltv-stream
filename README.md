@@ -48,6 +48,7 @@ object with the following parameters:
   each programme. Any format that [date-fns](https://date-fns.org/) [accepts](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table) is valid.
   Default is the standard XMLTV format: yyyyMMddHHmmss XXX (e.g: 20150603025000 +0200).
 * `outputTimeFmt` (Intl.DateTimeFormat) - Time format object to use when formatting date values to string. By default is undefined, returning Date objects instead.
+* `silent` (Boolean) - Boolean indicating if parsing errors should be silented or printed to console and emitted as errors. Defaults to true.
 
 So you can also declare it like so:
 ```javascript
