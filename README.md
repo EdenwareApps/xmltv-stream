@@ -68,6 +68,8 @@ This is the object emitted in each `programme` event. It has the following attri
 * `length` (Number) - Length of the programme in seconds
 * `category` (Array[String]) - Programme's categories
 * `country` (Array[String]) - Programme's countries
+* `images` (Array[String]) - Programme's images
+* `icon` (String) - Programme's image icon
 * `rating` (Array[Object]) - Array of programme's age ratings. Each rating has a 
   `system` and `value` attributes. Where the system can be something like MPAA.
 * `episodeNum` (Array[Object]) - Programme episode number. Each item has a `system`
@@ -126,7 +128,6 @@ that the module currently doesn't parse:
 * `subtitles` - Information about the subtitle's language
 * `date` - Programme air date
 * `star-rating` - Review ratings
-* `icon`
 * `url`
 * `video` - Quality, resolution and additional details about the video
 * `audio` - Quality and additional technical details about the audio
