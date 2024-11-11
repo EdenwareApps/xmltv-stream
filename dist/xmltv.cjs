@@ -32,6 +32,20 @@ var PROGRAMME_MULTI_FIELDS = Object.freeze({
   country: 'country'
 });
 
+// Mapping new fields for parsing
+var EXTRA_FIELDS = Object.freeze({
+  subtitles: 'subtitles',
+  'star-rating': 'starRating',
+  url: 'url',
+  video: 'video',
+  audio: 'audio',
+  'previously-shown': 'previouslyShown',
+  premiere: 'premiere',
+  'last-chance': 'lastChance',
+  'new': 'isNew',
+  review: 'review'
+});
+
 // Mapping credits fields
 var CREDITS_FIELDS = Object.freeze({
   actor: 'actor',
@@ -80,6 +94,16 @@ var Programme = exports.Programme = /*#__PURE__*/function () {
     this.credits = [];
     this.images = [];
     this.date = null;
+    this.subtitles = [];
+    this.starRating = [];
+    this.url = [];
+    this.video = [];
+    this.audio = [];
+    this.previouslyShown = false;
+    this.premiere = false;
+    this.lastChance = false;
+    this.isNew = false;
+    this.review = [];
   }
 
   /**
@@ -123,7 +147,8 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
     _this.options = Object.assign({
       timeFmt: 'yyyyMMddHHmmss XXX',
       // using date-fns format
-      outputTimeFmt: null
+      outputTimeFmt: null,
+      silent: true
     }, options);
     var parserOptions = {
       trim: true,
@@ -133,9 +158,12 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
     _this.xmlParser = _sax["default"].createStream(true, parserOptions);
     _this.xmlParser.on('end', _this.emit.bind(_this, 'end'));
     _this.xmlParser.on('error', function (err) {
-      if (_this.listenerCount('error')) {
-        console.error(err);
-        _this.emit('error', err);
+      if (!_this.options.silent) {
+        if (_this.listenerCount('error')) {
+          _this.emit('error', err);
+        } else {
+          console.error(err);
+        }
       }
     });
     var programme = null,
@@ -202,6 +230,12 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
             size: IMAGE_FIELDS[currentNode.name],
             url: text
           });
+        } else if (EXTRA_FIELDS[currentNode.name]) {
+          if (Array.isArray(programme[EXTRA_FIELDS[currentNode.name]])) {
+            programme[EXTRA_FIELDS[currentNode.name]].push(text);
+          } else {
+            programme[EXTRA_FIELDS[currentNode.name]] = text.trim().toLowerCase() === 'true' || text.trim() === 'yes';
+          }
         } else if (currentNode.name === 'length' && LENGTH_UNITS[currentNode.attributes.units]) {
           programme.length = parseInt(text, 10) * LENGTH_UNITS[currentNode.attributes.units];
         } else if (currentNode.name === 'episode-num') {
@@ -251,9 +285,12 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
       } catch (e) {
         err = e;
       }
-      if (this.listenerCount('error')) {
-        //console.error(err)
-        this.emit('error', err);
+      if (!this.options.silent) {
+        if (this.listenerCount('error')) {
+          this.emit('error', err);
+        } else {
+          console.error(err);
+        }
       }
       return null;
     }
