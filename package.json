@@ -1,28 +1,6 @@
 {
-  "_from": "github:efoxbr/node-xmltv",
-  "_id": "xmltv@0.3.0",
-  "_inBundle": false,
-  "_integrity": "",
-  "_location": "/xmltv",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "git",
-    "raw": "xmltv@github:efoxbr/node-xmltv",
-    "name": "xmltv",
-    "escapedName": "xmltv",
-    "rawSpec": "github:efoxbr/node-xmltv",
-    "saveSpec": "github:efoxbr/node-xmltv",
-    "fetchSpec": null,
-    "gitCommittish": null
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "github:efoxbr/node-xmltv#6d9a5a2c99b78788bb487b9aabf38dc5beedac6f",
-  "_spec": "xmltv@github:efoxbr/node-xmltv",
-  "_where": "J:\\PROJECTS\\MEGA2020-NW\\NWJS\\package.nw",
   "bugs": {
-    "url": "https://github.com/nice-shot/node-xmltv/issues"
+    "url": "https://github.com/EdenwareApps/xmltv-stream/issues"
   },
   "contributors": [
     {
@@ -35,8 +13,9 @@
     }
   ],
   "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "lodash": "^4.17.20",
-    "moment": "^2.29.1",
     "sax": "^1.2.4"
   },
   "deprecated": false,
@@ -52,7 +31,7 @@
     "istanbul": "^0.4.5",
     "tape": "^5.9.0"
   },
-  "homepage": "https://github.com/nice-shot/node-xmltv",
+  "homepage": "https://github.com/EdenwareApps/xmltv-stream",
   "keywords": [
     "xmltv",
     "epg",
@@ -61,26 +40,26 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/nice-shot/node-xmltv/blob/master/LICENSE-MIT"
+      "url": "https://github.com/EdenwareApps/xmltv-stream/blob/master/LICENSE-MIT"
     }
   ],
   "main": "dist/xmltv.cjs",
   "module": "lib/xmltv.js",
   "exports": {
     ".": {
-      "require": "dist/xmltv.cjs",
-      "import": "lib/xmltv.js"
+      "require": "./dist/xmltv.cjs",
+      "import": "./lib/xmltv.js"
     }
   },
   "name": "xmltv",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nice-shot/node-xmltv.git"
+    "url": "git://github.com/EdenwareApps/xmltv-stream.git"
   },
   "scripts": {
     "prepare": "babel lib/xmltv.js --out-file-extension .cjs --out-dir dist",
     "coverage": "istanbul cover test/xmltv_test.js",
     "test": "grunt"
   },
-  "version": "0.3.1"
+  "version": "0.4.0"
 }

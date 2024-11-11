@@ -4,10 +4,11 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.Programme = exports.Parser = void 0;
+exports.Programme = exports.Parser = void 0;
 var _sax = _interopRequireDefault(require("sax"));
 var _stream = require("stream");
-var _moment = _interopRequireDefault(require("moment"));
+var _dateFns = require("date-fns");
+var _dateFnsTz = require("date-fns-tz");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
@@ -16,18 +17,12 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-// mapping of XML field names to object property names
+// Mapping XML fields to object properties
 var PROGRAMME_MULTI_FIELDS = Object.freeze({
   title: 'title',
   'sub-title': 'secondaryTitle',
@@ -37,7 +32,7 @@ var PROGRAMME_MULTI_FIELDS = Object.freeze({
   country: 'country'
 });
 
-// mapping of credit-related XML tags to object property names
+// Mapping credits fields
 var CREDITS_FIELDS = Object.freeze({
   actor: 'actor',
   director: 'director',
@@ -45,26 +40,28 @@ var CREDITS_FIELDS = Object.freeze({
   presenter: 'presenter'
 });
 
-// mapping of image-related XML tags to object property names
+// Mapping image fields
 var IMAGE_FIELDS = Object.freeze({
   'large-image-url': 'large',
   'medium-image-url': 'medium',
   'small-image-url': 'small'
 });
+var TIMEZONE_FIX_REGEX = new RegExp('([+-]\\d{2})(\\d{2})$');
 
-// conversion factors for length units
+// Conversion factors for length units
 var LENGTH_UNITS = Object.freeze({
   seconds: 1,
   minutes: 60,
   hours: 3600
 });
 
-// represents a single channel entry
+// Represents a channel entry
 var Channel = /*#__PURE__*/_createClass(function Channel() {
   _classCallCheck(this, Channel);
   this.name = null;
   this.icon = null;
-}); // represents a single programme entry
+  this.displayName = null; // initializes with null to avoid redundant checks
+}); // Represents a programme entry
 var Programme = exports.Programme = /*#__PURE__*/function () {
   function Programme() {
     _classCallCheck(this, Programme);
@@ -85,36 +82,49 @@ var Programme = exports.Programme = /*#__PURE__*/function () {
     this.date = null;
   }
 
-  // parses the season number from the episode number string (xmltv_ns format)
+  /**
+   * Parses episodeNum with xmltv_ns system format and returns the season number
+   *
+   * xmltv_ns format lookgs like this:
+   * season[/total] . episode-num[/total] . episode-part[/total]
+   * If the number is not included it's unknown.
+   * So: "1.4/5." - is episode 5 out of 5 of season 2.
+   * And: "0.0.0/2" - is part 1 of episode 1 of season 1
+   * (The count starts from 0)
+   *
+   * If no arguments are given it looks for the episode number in the episodeNum
+   * attribute.
+   */
   return _createClass(Programme, [{
     key: "getSeason",
     value: function getSeason(epNum) {
       var _this$episodeNum$find;
-      epNum = epNum || ((_this$episodeNum$find = this.episodeNum.find(function (item) {
+      if (!epNum) epNum = (_this$episodeNum$find = this.episodeNum.find(function (item) {
         return item.system === 'xmltv_ns';
-      })) === null || _this$episodeNum$find === void 0 ? void 0 : _this$episodeNum$find.value);
+      })) === null || _this$episodeNum$find === void 0 ? void 0 : _this$episodeNum$find.value;
       if (!epNum) return null;
-      var _epNum$split = epNum.split('.'),
-        _epNum$split2 = _slicedToArray(_epNum$split, 1),
-        seasonPart = _epNum$split2[0];
-      if (!seasonPart) return null;
+      var parts = epNum.split('.');
+      if (parts.length !== 3) return null;
+      var seasonPart = parts[0];
       var seasonNum = parseInt(seasonPart.split('/')[0].trim(), 10);
-      return Number.isNaN(seasonNum) ? null : seasonNum + 1;
+      if (seasonPart.length !== 0) {
+        return Number(seasonNum) + 1;
+      }
+      return null;
     }
   }]);
 }(); // main parser class for XMLTV
 var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
   function Parser() {
-    var _options$strictTime;
     var _this;
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     _classCallCheck(this, Parser);
     _this = _callSuper(this, Parser);
-    _this.options = {
-      timeFmt: options.timeFmt || 'YYYYMMDDHHmmss Z',
-      outputTimeFmt: options.outputTimeFmt || null,
-      strictTime: (_options$strictTime = options.strictTime) !== null && _options$strictTime !== void 0 ? _options$strictTime : true
-    };
+    _this.options = Object.assign({
+      timeFmt: 'yyyyMMddHHmmss XXX',
+      // using date-fns format
+      outputTimeFmt: null
+    }, options);
     var parserOptions = {
       trim: true,
       position: false,
@@ -122,7 +132,12 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
     };
     _this.xmlParser = _sax["default"].createStream(true, parserOptions);
     _this.xmlParser.on('end', _this.emit.bind(_this, 'end'));
-    _this.xmlParser.on('error', _this.emit.bind(_this, 'error'));
+    _this.xmlParser.on('error', function (err) {
+      if (_this.listenerCount('error')) {
+        console.error(err);
+        _this.emit('error', err);
+      }
+    });
     var programme = null,
       channel = null,
       currentNode = null;
@@ -134,11 +149,23 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
           channel = new Channel();
           channel.name = node.attributes.id;
           break;
+        case 'display-name':
+          _this.currentDisplay = {
+            target: channel || programme
+          };
+          break;
+        case 'icon':
+          if (programme) {
+            programme.icon = node.attributes.src;
+          } else if (channel) {
+            channel.icon = node.attributes.src;
+          }
+          break;
         case 'programme':
           programme = new Programme();
           programme.channel = node.attributes.channel;
           programme.start = _this.parseDate(node.attributes.start);
-          programme.end = _this.parseDate(node.attributes.stop); // not mandatory but usually present
+          programme.end = _this.parseDate(node.attributes.stop); // not mandatory, but usually present
           break;
       }
     });
@@ -155,12 +182,15 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
     });
     _this.xmlParser.on('text', function (text) {
       if (!currentNode) return;
-      if (currentNode.name === 'display-name' && channel) {
-        channel.displayName = text;
+      if (_this.currentDisplay && text.trim()) {
+        _this.currentDisplay.target.displayName = text;
+        _this.currentDisplay = null;
       } else if (programme) {
         var _currentNode$parentNo;
         if (PROGRAMME_MULTI_FIELDS[currentNode.name]) {
-          programme[PROGRAMME_MULTI_FIELDS[currentNode.name]].push(text);
+          if (text.trim()) {
+            programme[PROGRAMME_MULTI_FIELDS[currentNode.name]].push(text);
+          }
         } else if (CREDITS_FIELDS[currentNode.name]) {
           programme.credits.push({
             type: currentNode.name,
@@ -188,7 +218,7 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
       }
     });
 
-    // closes the SAX parser when the writable stream ends
+    // closes the SAX parser when the stream finishes
     _this.on('finish', function () {
       return _this.xmlParser.end();
     });
@@ -206,12 +236,26 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
   }, {
     key: "parseDate",
     value: function parseDate(date) {
-      var parsed = (0, _moment["default"])(date, this.options.timeFmt, this.options.strictTime);
-      return parsed.isValid() ? this.options.outputTimeFmt ? parsed.format(this.options.outputTimeFmt) : parsed.toDate() : null;
+      if (typeof date !== 'string' || !date) return null;
+      var err;
+      date = String(date).trim().replace(TIMEZONE_FIX_REGEX, '$1:$2'); // common fixes
+      try {
+        var parsed = (0, _dateFns.parse)(date, this.options.timeFmt, new Date());
+        if ((0, _dateFns.isValid)(parsed)) {
+          if (!this.options.outputTimeFmt) return parsed;
+          var timezone = this.options.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+          return (0, _dateFnsTz.formatInTimeZone)(parsed, timezone, this.options.outputTimeFmt || 'yyyy-MM-dd HH:mm:ss');
+        } else {
+          err = new Error("Invalid date format: ".concat(date, " ").concat(this.options.timeFmt));
+        }
+      } catch (e) {
+        err = e;
+      }
+      if (this.listenerCount('error')) {
+        //console.error(err)
+        this.emit('error', err);
+      }
+      return null;
     }
   }]);
 }(_stream.Writable);
-var _default = exports["default"] = {
-  Parser: Parser,
-  Programme: Programme
-};

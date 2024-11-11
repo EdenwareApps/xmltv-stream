@@ -1,14 +1,14 @@
 # xmltv
 
 An [XMLTV](http://wiki.xmltv.org/index.php/Main_Page) format reader based on sax.
-Cloned from [LionelMartin](https://github.com/LionelMartin) original parser.
+Forked from [nice-shot](https://github.com/nice-shot), which itself is a fork of the original parser by [LionelMartin](https://github.com/LionelMartin).
 
 ## Installation
 
 `npm install xmltv`
 
 ## Getting Started
-The module expoeses an XMLTV format parser class. This class is a writable stream so
+The module exposes an XMLTV format parser class. This class is a writable stream so
 you can just pipe XMLTV data to it:
 
 ```javascript
@@ -34,14 +34,13 @@ It also emits an `end` event when it finishes reading the XML.
 This is the main parser class. When creating it you can pass an optional options
 object with the following parameters:
 * `timeFmt` (String) - Time format to use to parse the start and end dates for 
-  each programme. Any format that [moment](http://momentjs.com) accepts is valid.
-  Default is the standard XMLTV format: YYYYMMDDHHmmss Z (e.g: 20150603025000 +0200).
-* `strictTime` (Boolean) - Whether the dates shoule be parsed in moment's strict
-  mode or loosly.
+  each programme. Any format that [date-fns](https://date-fns.org/) [accepts](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table) is valid.
+  Default is the standard XMLTV format: yyyyMMddHHmmss XXX (e.g: 20150603025000 +0200).
+* `outputTimeFmt` (Intl.DateTimeFormat) - Time format object to use when formatting date values to string. By default is undefined, returning Date objects instead.
 
 So you can also declare it like so:
 ```javascript
-var parser = new xmltv.Parser({ timeFmt: 'YYYYMMDD', strictTime: false });
+var parser = new xmltv.Parser({ timeFmt: 'yyyyMMddHHmmss XXX' });
 ```
 
 The parser has the following attributes:
