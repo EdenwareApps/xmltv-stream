@@ -32,19 +32,8 @@ test('XMLTV Additional Methods', function (t) {
     // Missing seconds in date format
     t.deepEqual(
         parser.parseDate('201505061200 +0200'),
-        null,
+        new Date(Date.UTC(2015, 4, 6, 10, 0, 0)),
         'default parseDate missing seconds'
-    );
-
-    parser = new xmltv.Parser({
-        timeFmt: new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
-    });
-
-    // Custom format without seconds
-    t.deepEqual(
-        parser.parseDate('201505061200 +0200'),
-        null,  // Adjusted for new format
-        'custom parseDate missing seconds'
     );
 
     t.end();
@@ -122,7 +111,7 @@ test('XMLTV Parsing', function (t) {
 
 test('XMLTV Error Handling', function (t) {
     var numOfErrors = 0;
-    var parser = new xmltv.Parser();
+    var parser = new xmltv.Parser({silent: false});
     parser.on('error', function (err) {
             t.ok(err instanceof Error, 'Got error');
             numOfErrors++;

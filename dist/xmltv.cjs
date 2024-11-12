@@ -7,8 +7,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.Programme = exports.Parser = void 0;
 var _sax = _interopRequireDefault(require("sax"));
 var _stream = require("stream");
-var _dateFns = require("date-fns");
-var _dateFnsTz = require("date-fns-tz");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
@@ -60,7 +58,6 @@ var IMAGE_FIELDS = Object.freeze({
   'medium-image-url': 'medium',
   'small-image-url': 'small'
 });
-var TIMEZONE_FIX_REGEX = new RegExp('([+-]\\d{2})(\\d{2})$');
 
 // Conversion factors for length units
 var LENGTH_UNITS = Object.freeze({
@@ -68,6 +65,7 @@ var LENGTH_UNITS = Object.freeze({
   minutes: 60,
   hours: 3600
 });
+var TIMEZONE_ADJUST_REGEX = new RegExp("([+-]\\d{2}):?(\\d{2})$");
 
 // Represents a channel entry
 var Channel = /*#__PURE__*/_createClass(function Channel() {
@@ -141,24 +139,22 @@ var Programme = exports.Programme = /*#__PURE__*/function () {
 var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
   function Parser() {
     var _this;
-    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     _classCallCheck(this, Parser);
     _this = _callSuper(this, Parser);
-    _this.options = Object.assign({
-      timeFmt: 'yyyyMMddHHmmss XXX',
-      // using date-fns format
-      outputTimeFmt: null,
+    _this.opts = Object.assign({
+      parseDate: null,
       silent: true
-    }, options);
-    var parserOptions = {
+    }, opts);
+    var parserOpts = {
       trim: true,
       position: false,
       lowercase: true
     };
-    _this.xmlParser = _sax["default"].createStream(true, parserOptions);
+    _this.xmlParser = _sax["default"].createStream(true, parserOpts);
     _this.xmlParser.on('end', _this.emit.bind(_this, 'end'));
     _this.xmlParser.on('error', function (err) {
-      if (!_this.options.silent) {
+      if (!_this.opts.silent) {
         if (_this.listenerCount('error')) {
           _this.emit('error', err);
         } else {
@@ -269,27 +265,42 @@ var Parser = exports.Parser = /*#__PURE__*/function (_Writable) {
     // parses a date string and returns a Date object or null if invalid
   }, {
     key: "parseDate",
-    value: function parseDate(date) {
-      if (typeof date !== 'string' || !date) return null;
-      var err;
-      date = String(date).trim().replace(TIMEZONE_FIX_REGEX, '$1:$2'); // common fixes
+    value: function parseDate(dateStr) {
+      if (this.opts.parseDate) return this.opts.parseDate(dateStr);
       try {
-        var parsed = (0, _dateFns.parse)(date, this.options.timeFmt, new Date());
-        if ((0, _dateFns.isValid)(parsed)) {
-          if (!this.options.outputTimeFmt) return parsed;
-          var timezone = this.options.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-          return (0, _dateFnsTz.formatInTimeZone)(parsed, timezone, this.options.outputTimeFmt || 'yyyy-MM-dd HH:mm:ss');
+        // check for timezone in format +HHMM or +HH:MM
+        var tzMatch = dateStr.match(TIMEZONE_ADJUST_REGEX);
+        var timezoneOffset = tzMatch ? tzMatch[1] + ':' + tzMatch[2] : 'Z';
+        if (tzMatch) {
+          dateStr = dateStr.substr(0, dateStr.length - tzMatch[0].length - 1); // remove timezone from date string
+        }
+
+        // default values
+        var year = dateStr.slice(0, 4),
+          month = dateStr.slice(4, 6) || '01',
+          day = dateStr.slice(6, 8) || '01',
+          hour = dateStr.slice(8, 10) || '00',
+          minute = dateStr.slice(10, 12) || '00',
+          second = dateStr.slice(12, 14) || '00';
+
+        // build the ISO 8601 formatted string
+        var isoString = "".concat(year, "-").concat(month, "-").concat(day, "T").concat(hour, ":").concat(minute, ":").concat(second).concat(timezoneOffset);
+        if (this.opts.timestamps) {
+          var ret = Date.parse(isoString);
+          return isNaN(ret) ? null : ret / 1000;
         } else {
-          err = new Error("Invalid date format: ".concat(date, " ").concat(this.options.timeFmt));
+          var _ret = new Date(isoString);
+          if (_ret instanceof Date && !isNaN(_ret)) {
+            return _ret;
+          }
         }
       } catch (e) {
-        err = e;
-      }
-      if (!this.options.silent) {
-        if (this.listenerCount('error')) {
-          this.emit('error', err);
-        } else {
-          console.error(err);
+        if (!this.opts.silent) {
+          if (this.listenerCount('error')) {
+            this.emit('error', e);
+          } else {
+            console.error(e);
+          }
         }
       }
       return null;

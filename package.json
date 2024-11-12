@@ -13,9 +13,6 @@
     }
   ],
   "dependencies": {
-    "date-fns": "^4.1.0",
-    "date-fns-tz": "^3.2.0",
-    "lodash": "^4.17.20",
     "sax": "^1.2.4"
   },
   "deprecated": false,
@@ -28,7 +25,6 @@
     "grunt-cli": "^1.5.0",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-tape": "^0.1.0",
-    "istanbul": "^0.4.5",
     "tape": "^5.9.0"
   },
   "homepage": "https://github.com/EdenwareApps/xmltv-stream",
@@ -58,8 +54,7 @@
   },
   "scripts": {
     "prepare": "babel lib/xmltv.js --out-file-extension .cjs --out-dir dist",
-    "coverage": "istanbul cover test/xmltv_test.js",
     "test": "grunt"
   },
-  "version": "0.4.1"
+  "version": "0.4.2"
 }

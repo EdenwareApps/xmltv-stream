@@ -6,7 +6,6 @@
 
 - **Stream-Based Parsing**: Leverages SAX-based streaming for efficient parsing of large XMLTV files, ideal for high-volume EPG data.
 - **Optimized for XMLTV Format**: Specific mappings for XMLTV values such as title, description, categories, credits, and episode numbers.
-- **Advanced Date Handling**: Supports custom date and time formats with timezone adjustments via `intl.DateTimeFormat`.
 - **Event-Driven**: Emits events for each `channel` and `programme` information, and supports `error` and `end` events for easy integration.
 - **Lightweight and Fast**: Low memory footprint, making it suitable for large datasets and resource-constrained environments.
 
@@ -44,22 +43,21 @@ It also emits an `end` event when it finishes reading the XML.
 ## xmltv.Parser
 This is the main parser class. When creating it you can pass an optional options
 object with the following parameters:
-* `timeFmt` (String) - Time format to use to parse the start and end dates for 
-  each programme. Any format that [date-fns](https://date-fns.org/) [accepts](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table) is valid.
-  Default is the standard XMLTV format: yyyyMMddHHmmss XXX (e.g: 20150603025000 +0200).
-* `outputTimeFmt` (Intl.DateTimeFormat) - Time format object to use when formatting date values to string. By default is undefined, returning Date objects instead.
+* `timestamps` (Boolean) - Set 'true' to return unix timestamps instead of Date objects.
+* `parseDate` (Function) - Function to parse date strings from the EPG.
 * `silent` (Boolean) - Boolean indicating if parsing errors should be silented or printed to console and emitted as errors. Defaults to true.
 
 So you can also declare it like so:
 ```javascript
-var parser = new xmltv.Parser({ timeFmt: 'yyyyMMddHHmmss XXX' });
+var parser = new xmltv.Parser({ silent: false });
+parser.on('error', console.error)
 ```
 
 The parser has the following attributes:
 * `xmlParser` - The underlying sax.Parser object. Everything written to the parser
   is piped to it.
 * `parseDate(date)` - A small helper method to parse date attributes from the
-  standard XMLTV format - YYYYMMDDHHmmss Z (e.g: 20150603025000 +0200).
+  standard XMLTV format (e.g: 20150603025000 +0200).
 
 It emits the following events:
 * `programme` - The parsed programme record. Argument is the xmltv.Programme.
@@ -70,8 +68,8 @@ It emits the following events:
 ## xmltv.Programme
 This is the object emitted in each `programme` event. It has the following attributes:
 * `channel` (String) - Channel id
-* `start` (Date) - When will the programme be broadcast
-* `end` (Date) - Programme's end time
+* `start` (Date|Integer) - When will the programme be broadcast
+* `end` (Date|Integer) - Programme's end time
 * `title` (Array[String]) - Programme's titles. According to the DTD at least
   a single title must be present. However, the parser doesn't validate this
 * `secondaryTitle` (Array[String]) - Programme's secondary titles. This is
